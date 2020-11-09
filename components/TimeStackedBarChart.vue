@@ -274,13 +274,18 @@ export default {
           displayColors: false,
           callbacks: {
             label: tooltipItem => {
-              const transitionSelect = [[], [], [], []]
+              const transitionSelect = []
+              const cumulativeSelect = []
+              for (let i=0; i < this.items.length; i++) {
+                  transitionSelect.push([])
+                  cumulativeSelect.push([])
+              }
+
               data.map((item, index) => {
                 for (let i = this.graphRange[0]; i <= this.graphRange[1]; i++) {
                   transitionSelect[index].push(item[i])
                 }
               })
-              const cumulativeSelect = [[], [], [], []]
               data.map((item, index) => {
                 const allItemsArr = this.cumulative(item)
                 for (let i = this.graphRange[0]; i <= this.graphRange[1]; i++) {
@@ -288,22 +293,22 @@ export default {
                 }
               })
 
-              const labelText =
-                this.dataKind === 'transition'
-                  ? `${sumArray[tooltipItem.index]}${unit} (福岡市: ${
-                      transitionSelect[0][tooltipItem.index]
-                    }, 北九州市: ${
-                      transitionSelect[1][tooltipItem.index]
-                    }, 福岡県※: ${
-                      transitionSelect[2][tooltipItem.index]
-                    }, 民間検査: ${transitionSelect[3][tooltipItem.index]})`
-                  : `${cumulativeSumArray[tooltipItem.index]}${unit} (福岡市: ${
-                      cumulativeSelect[0][tooltipItem.index]
-                    }, 北九州市: ${
-                      cumulativeSelect[1][tooltipItem.index]
-                    }, 福岡県※: ${
-                      cumulativeSelect[2][tooltipItem.index]
-                    }, 民間検査: ${cumulativeSelect[3][tooltipItem.index]})`
+              let labelText = ''
+              if (this.dataKind === 'transition') {
+                labelText += sumArray[tooltipItem.index] + unit + ' ('
+                for (let i=0; i < this.items.length; i++) {
+                    if (i > 0) labelText += ', '
+                    labelText += this.items[i] + ':' + transitionSelect[i][tooltipItem.index]
+                }
+                labelText += ')'
+              } else {
+                labelText += cumulativeSumArray[tooltipItem.index] + unit + ' ('
+                for (let i=0; i < this.items.length; i++) {
+                    if (i > 0) labelText += ', '
+                    labelText += this.items[i] + ':' + cumulativeSelect[i][tooltipItem.index]
+                }
+                labelText += ')'
+              }
               return labelText
             },
             title(tooltipItem, data) {
@@ -445,17 +450,14 @@ export default {
     },
     eachArraySum(chartDataArray) {
       const sumArray = []
-      let series_count = chartDataArray.length
-      let data_count = chartDataArray[0].length
+      const series_count = chartDataArray.length
+      const data_count = chartDataArray[0].length
       for (let i = 0; i < data_count; i++) {
         let total = 0
         for (let k=0; k < series_count; k++) {
           total += chartDataArray[k][i]
         }
         sumArray.push(total)
-        //sumArray.push(
-        //  chartDataArray[0][i] + chartDataArray[1][i] + chartDataArray[2][i] + chartDataArray[3][i]
-        //)
       }
       const selectSumArray = sumArray.slice(
         this.graphRange[0],
