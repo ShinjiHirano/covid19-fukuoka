@@ -445,10 +445,17 @@ export default {
     },
     eachArraySum(chartDataArray) {
       const sumArray = []
-      for (let i = 0; i < chartDataArray[0].length; i++) {
-        sumArray.push(
-          chartDataArray[0][i] + chartDataArray[1][i] + chartDataArray[2][i] + chartDataArray[3][i]
-        )
+      let series_count = chartDataArray.length
+      let data_count = chartDataArray[0].length
+      for (let i = 0; i < data_count; i++) {
+        let total = 0
+        for (let k=0; k < series_count; k++) {
+          total += chartDataArray[k][i]
+        }
+        sumArray.push(total)
+        //sumArray.push(
+        //  chartDataArray[0][i] + chartDataArray[1][i] + chartDataArray[2][i] + chartDataArray[3][i]
+        //)
       }
       const selectSumArray = sumArray.slice(
         this.graphRange[0],
